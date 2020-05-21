@@ -49,7 +49,32 @@ To run the code just:
 
 ## Connections
 
+### DISCLAIMER: 
+IN THIS FRITIZING DRAWING, I AM USTING THE NUCLEO-64 ONLY BECAUSE NUCLEO-32 PART IS NOT AVAILABLE ONLINE. 
+
 ![alt text](https://github.com/KirollosNagi/IoTSimpleApp/blob/master/Support_Material/connections.png "Connections IMG")
+
+### Actual pin Connection and configuration
+* Make sure you have devices powered and sharing a common ground.
+
+| STM32 | ESP8266 |
+|---|---|
+| UART1 TX (PB6/D5) | Tx pin |
+| UART1 TX (PB7/D4)  | Rx pin |
+
+| STM32 | DS3231 |
+|---|---|
+| I2C_SCL (PA9/D1) | I2C_SCL |
+| I2C_SDA (PA10/D0) | I2C_SDA |
+
+* Also Note the next pins should remain NC
+
+| Pin | Functionality |
+|---|---|
+| STM32 UART2 Tx (PA2/A7) | (NC)(debug UART2 Tx) |
+| STM32 UART2 Rx (PA15/Virtual) | (NC)(debug UART2 Rx) |
+| STM32 GPIO LED (PB3/D12) | (NC)(Internal LED 3) |
+
 
 ## Functionality
 
