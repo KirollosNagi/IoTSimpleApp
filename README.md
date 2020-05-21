@@ -90,6 +90,8 @@ IN THIS FRITIZING DRAWING, I AM USTING THE NUCLEO-64 ONLY BECAUSE NUCLEO-32 PART
 | Command | Description |
 |---|---|
 | ! | Retrieve Local IP of ESP |
+| P-"Temp" | Recieve and Display Temperature |
+| E-"Time" | Recieve and Display Time |
 
 ### Commands from ESP8266 to STM32
 | Command | Description |
