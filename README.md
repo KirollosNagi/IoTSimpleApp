@@ -1,5 +1,4 @@
 # IoTSimpleApp
-<<<<<<< HEAD
 
 ## Description
 This is a repo providing a walk-through for a simple project to begin grasping the concepts of IoT. This project uses STM32L432KC as the microcontroller communicating with ESP8266 Wi-Fi Module and RTC DS3231 
@@ -7,7 +6,7 @@ This project was implemented for the course CSCE4301 - Section 1 Embedded System
 
 ### Author
 
-Kirollos N. Soror ECNG Graduting Senior
+Kirollos N. Sorour ECNG Graduting Senior
 
 ### Project Prompt
 
@@ -46,11 +45,11 @@ To run the code just:
 
 ## Architecture
 
-![alt text](https://github.com/KirollosNagi/IoTSimpleApp/tree/master/Support Material/architecture.png "Architecture IMG")
+![alt text](https://github.com/KirollosNagi/IoTSimpleApp/tree/master/Support_Material/architecture.png "Architecture IMG")
 
 ## Connections
 
-![alt text](https://github.com/KirollosNagi/IoTSimpleApp/tree/master/Support Material/Connections.jpeg "Connections IMG")
+![alt text](https://github.com/KirollosNagi/IoTSimpleApp/tree/master/Support_Material/Connections.jpeg "Connections IMG")
 
 ## Functionality
 
@@ -90,7 +89,3 @@ I have spent some time searching many datasheets till I found the one for the Wi
 * Board PCB design and enclosure
 Finally after all of the above is covered and the system is running and user friendly, I would propose to increase the system’s usability by introducing a factor of compactness into the game and going over the PCB design process and provide also an enclosure casing to it to make it look like an attractive on-the-shelf product.
 * Implement FreeRTOS or similar functionalities in the microcontroller for better response time/extensibility
-
-=======
-This is a repo providing a walk-through for a simple project to begin grasping the concepts of IoT. This project uses STM32L432KC as the microcontroller communicating with ESP8266 and DS3231 
->>>>>>> 3c674bac8d9e7d21848d5ef91ccd2a0957952078
