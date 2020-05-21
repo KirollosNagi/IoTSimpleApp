@@ -136,6 +136,7 @@ int main(void)
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
 		HAL_Delay(250);
 	}
+//////////////////////////////////////////////////////////////////////////
 	//STM sends a command to get ip
 	uint8_t command[]={'!'};
 	HAL_UART_Transmit(&huart1,command,sizeof(command),10);
@@ -204,7 +205,8 @@ int main(void)
 	uint8_t out[] = {0,0,':',0,0,':',0,0,' ',' ','1','\t',0,0,'/',0,0,'/',0,0,'\r','\n'};
  	__HAL_UART_ENABLE_IT(&huart1,UART_IT_RXNE);
 	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_RESET);
-	
+	uint8_t cc1='P';
+	uint8_t cc2='E';
   while (1)
   {
     /* USER CODE END WHILE */
@@ -302,20 +304,36 @@ int main(void)
 		}
 		else if (rxdata == 'P')
 		{
+			
 			HAL_UART_Transmit(&huart2,outf, sizeof(outf), 10);
+			HAL_UART_Transmit(&huart1, &cc1, sizeof(cc1),10);
 			if((Tupper[1] & 0x80) != 0x00)
+			{
 				HAL_UART_Transmit(&huart2,(uint8_t*) &nsign, 1, 100);
+				HAL_UART_Transmit(&huart1,(uint8_t*) &nsign, 1, 100);
+			}
 			if(tempout[0]=='0')
+			{
 				HAL_UART_Transmit(&huart2,tempout+1, sizeof(tempout)-1, 10);
+				HAL_UART_Transmit(&huart1,tempout+1, sizeof(tempout)-3, 10);
+			}
 			else
+			{
 				HAL_UART_Transmit(&huart2,tempout, sizeof(tempout), 10);
+				HAL_UART_Transmit(&huart1,tempout, sizeof(tempout)-2, 10);
+
+			}
+			HAL_UART_Transmit(&huart1,command,sizeof(command),10);
 			rxdata=' ';
 			timebool=0;
 		}
 		else if (rxdata == 'E' && timebool)
 		{
+			HAL_UART_Transmit(&huart1, &cc2, sizeof(cc2),10);
 			HAL_UART_Transmit(&huart2,outf, sizeof(outf), 10);
 			HAL_UART_Transmit(&huart2,out, sizeof(out), 10);
+			HAL_UART_Transmit(&huart1,out, sizeof(out)-2, 10);
+			HAL_UART_Transmit(&huart1,command,sizeof(command),10);
 			rxdata=' ';
 			timebool=0;
 		}

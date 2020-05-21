@@ -1,8 +1,8 @@
 #include <ESP8266WiFi.h>
 #define DEBUG 0
 // Replace with your network credentials
-const char* ssid     = "your_ssid";
-const char* password = "your_password";
+const char* ssid     = "Your-ssid";
+const char* password = "your-password";
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -62,11 +62,14 @@ void setup() {
 
   server.begin();
 }
-
+//int pi,ei;
+//bool tempread = false,timeread=false;
+bool tempready = false,timeready=false;
+String temp = " 000.00", timer = "00:00:00  1\t00/00/00";
 void loop() {
   WiFiClient client = server.available();   // Listen for incoming clients
   char c;
-  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   if (Serial.available())
   {
     c = Serial.read();
@@ -75,6 +78,16 @@ void loop() {
       UART_Transmit(WiFi.localIP().toString().c_str(), 10);
       UART_Transmit("\r\n", 10);
       c = ' ';
+    }
+    else if (c == 'P')
+    {
+      temp = Serial.readStringUntil('!');
+      tempready = true;
+    }
+    else if (c == 'E')
+    {
+      timer = Serial.readStringUntil('!');
+      timeready = true;
     }
   }
   if (client) {                             // If a new client connects,
@@ -86,6 +99,7 @@ void loop() {
       if (c == '!')
       {
         UART_Transmit(WiFi.localIP().toString().c_str(), 10);
+        UART_Transmit("\r\n", 10);
         c = ' ';
       }
     }
@@ -109,7 +123,7 @@ void loop() {
             client.println("Content-type:text/html");
             client.println("Connection: close");
             client.println();
-
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // turns the LEDs on and off
             if (header.indexOf("GET /ESP/on") >= 0) {
               if (DEBUG)
@@ -135,7 +149,7 @@ void loop() {
               if (DEBUG)
                 Serial.println("Display Time");
               UART_Transmit("TIME", 10);
-            }else if (header.indexOf("GET /TEMP") >= 0) {
+            } else if (header.indexOf("GET /TEMP") >= 0) {
               if (DEBUG)
                 Serial.println("Display Temp");
               UART_Transmit("TEMP", 10);
@@ -171,10 +185,16 @@ void loop() {
               client.println("<p><a href=\"/STM/off\"><button class=\"button button2\">OFF</button></a></p>");
             }
             // Display current state, and ON/OFF buttons for STM LED
-            client.println("<p>RTC Timer </p>");
+            if(!timeready)
+              client.println("<p>RTC Timer </p>");
+            else
+              client.println("<p>RTC Timer = " + timer + "</p>");
             client.println("<p><a href=\"/RTC\"><button class=\"button\">DISPLAY</button></a></p>");
             // Display current state, and ON/OFF buttons for STM LED
+            if(!tempready)
             client.println("<p>Temprature </p>");
+            else
+            client.println("<p>Temprature = " + temp + "</p>");
             client.println("<p><a href=\"/TEMP\"><button class=\"button\">GET</button></a></p>");
 
             client.println("</body></html>");
