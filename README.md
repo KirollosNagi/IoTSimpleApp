@@ -45,11 +45,11 @@ To run the code just:
 
 ## Architecture
 
-![alt text](https://github.com/KirollosNagi/IoTSimpleApp/tree/master/Support_Material/architecture.png "Architecture IMG")
+![alt text](https://github.com/KirollosNagi/IoTSimpleApp/blob/master/Support_Material/architecture.jpeg "Architecture IMG")
 
 ## Connections
 
-![alt text](https://github.com/KirollosNagi/IoTSimpleApp/tree/master/Support_Material/Connections.jpeg "Connections IMG")
+![alt text](https://github.com/KirollosNagi/IoTSimpleApp/blob/master/Support_Material/connections.png "Connections IMG")
 
 ## Functionality
 
