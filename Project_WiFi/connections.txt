@@ -1,0 +1,11 @@
+UART1
+PB6 (D5) --> TX 
+PB7 (D4) --> RX
+UART2
+PA2 (A7)(NC) --> (debug) TX
+PA15 (V)(NC) --> (debug) Rx
+I2C
+PA9 (D1) --> I2C_SCL
+PA10(D0) --> I2C_SDA
+GPIO
+PB3 (D13)(NC) --> LDR3

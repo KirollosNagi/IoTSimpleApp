@@ -1,8 +1,8 @@
 #include <ESP8266WiFi.h>
 #define DEBUG 0
 // Replace with your network credentials
-const char* ssid     = "Lord2Mario";
-const char* password = "mario62746";
+const char* ssid     = "your_ssid";
+const char* password = "your_password";
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -66,12 +66,14 @@ void setup() {
 void loop() {
   WiFiClient client = server.available();   // Listen for incoming clients
   char c;
+  
   if (Serial.available())
   {
     c = Serial.read();
     if (c == '!')
     {
       UART_Transmit(WiFi.localIP().toString().c_str(), 10);
+      UART_Transmit("\r\n", 10);
       c = ' ';
     }
   }
@@ -133,6 +135,10 @@ void loop() {
               if (DEBUG)
                 Serial.println("Display Time");
               UART_Transmit("TIME", 10);
+            }else if (header.indexOf("GET /TEMP") >= 0) {
+              if (DEBUG)
+                Serial.println("Display Temp");
+              UART_Transmit("TEMP", 10);
             }
 
             // Display the HTML web page
@@ -167,6 +173,9 @@ void loop() {
             // Display current state, and ON/OFF buttons for STM LED
             client.println("<p>RTC Timer </p>");
             client.println("<p><a href=\"/RTC\"><button class=\"button\">DISPLAY</button></a></p>");
+            // Display current state, and ON/OFF buttons for STM LED
+            client.println("<p>Temprature </p>");
+            client.println("<p><a href=\"/TEMP\"><button class=\"button\">GET</button></a></p>");
 
             client.println("</body></html>");
 

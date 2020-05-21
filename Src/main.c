@@ -29,6 +29,27 @@ uint8_t hexToAscii(uint8_t n)//4-bit hex value converted to an ascii character
  else n = n - 10 + 'A';
  return n;
 }
+uint8_t* htod(uint8_t h[])
+{
+    if(h[0]>='0'&&h[0]<='9')
+        h[0]-='0';
+    else
+        h[0]=h[0]-'A'+10;
+    if(h[1]>='0' && h[1]<='9')
+        h[1]-='0';
+    else
+        h[1]=h[1]-'A'+10;
+    int d=h[0]*16 +h[1];
+    char t[]={'0','0','0'};
+    int i=0;
+    while(d>0)
+    {
+        t[2-i] = d%10+'0';
+        d=d/10;
+        i++;
+    }
+    return t;
+}
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -115,26 +136,72 @@ int main(void)
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
 		HAL_Delay(250);
 	}
-	//STM sends an AT command to get ip
+	//STM sends a command to get ip
 	uint8_t command[]={'!'};
 	HAL_UART_Transmit(&huart1,command,sizeof(command),10);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//Transmit via I2C to set clock
+	int timebool=0;
+	//get temp
+	uint8_t control [2], status[2], Tupper[2], Tlower[2];
+	status[0]	= 0x0F;
+	control[0]	= 0x0E;
+	Tupper[0] = 0x11;
+	Tlower[0] = 0x12;
+	uint8_t temp1[2],*temp2,nsign='-';
+	uint8_t tempout[] = {'0','0','0','.','0','0','\r','\n'};
+	//get clock
 	uint8_t secbuffer [2], minbuffer [2], hourbuffer [2];
+	uint8_t dowbuffer [2],datebuffer[2],monthbuffer[2],yearbuffer[2];
 	// seconds
 	secbuffer[0] = 0x00; //register address
+	/*initialization only
+	secbuffer[1] = 0x00; //0 seconds
+	HAL_I2C_Master_Transmit(&hi2c1, 0xD0, secbuffer, 2, 10);
+	*/
 	// minutes
 	minbuffer[0] = 0x01; //register address
+	/*initialization only
+	minbuffer[1] = 0x17; // 15 mins
+	HAL_I2C_Master_Transmit(&hi2c1, 0xD0, minbuffer, 2, 10);
+	*/
 	// hours
 	hourbuffer[0] = 0x02; //register address
+	/*initialization only
+	hourbuffer[1] = 0x05;	// 5 am
+	HAL_I2C_Master_Transmit(&hi2c1, 0xD0, hourbuffer, 2, 10);
+	*/
+	//DOW 
+	dowbuffer[0] = 0x03; //register address
+	/*initialization only
+	dowbuffer[1] = 0x05; // Thursday
+	HAL_I2C_Master_Transmit(&hi2c1, 0xD0, dowbuffer, 2, 10);
+	*/
+	//date
+	datebuffer[0] = 0x04; //register address
+	/*initialization only
+	datebuffer[1] = 0x21; // 21 may
+	HAL_I2C_Master_Transmit(&hi2c1, 0xD0, datebuffer, 2, 10);
+	*/
+	//month
+	monthbuffer[0] = 0x05; //register address
+	/*initialization only
+	monthbuffer[1] = 0x05; //MAY
+	HAL_I2C_Master_Transmit(&hi2c1, 0xD0, monthbuffer, 2, 10);
+	*/
+	//year
+	yearbuffer[0] = 0x06; //register address
+	/*initialization only
+	yearbuffer[1] = 0x20;	// 2020
+	HAL_I2C_Master_Transmit(&hi2c1, 0xD0, yearbuffer, 2, 10);
+	*/
 	//Receive via I2C and forward to UART
 	uint8_t newline[]={'\r', '\n'};
 	uint8_t fnewline[]={'F','\r', '\n'};
 	uint8_t outf[] ={':', '\t'};
-	uint8_t out[] = {0,0,':',0,0,':',0,0,'\r','\n'};
+	uint8_t out[] = {0,0,':',0,0,':',0,0,' ',' ','1','\t',0,0,'/',0,0,'/',0,0,'\r','\n'};
  	__HAL_UART_ENABLE_IT(&huart1,UART_IT_RXNE);
 	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_RESET);
 	
@@ -143,7 +210,64 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		
+		HAL_I2C_Master_Transmit(&hi2c1, 0xD0, status, 1, 10);		//0xD0 is write
+		HAL_I2C_Master_Receive(&hi2c1, 0xD1, status+1, 1, 10);	//0xD1 is read
+		if((status[1]&0x04) == 0x00)
+		{
+			HAL_I2C_Master_Transmit(&hi2c1, 0xD0, control, 1, 10);
+			HAL_I2C_Master_Receive(&hi2c1, 0xD1, control+1, 1, 10);
+			control[1] |= 0x20; 		//set CONV bit (5th)
+			HAL_I2C_Master_Transmit(&hi2c1, 0xD0, control, 2, 10);
+			HAL_I2C_Master_Transmit(&hi2c1, 0xD0, Tupper, 1, 10);
+			HAL_I2C_Master_Receive(&hi2c1, 0xD1, Tupper+1, 1, 10);
+			HAL_I2C_Master_Transmit(&hi2c1, 0xD0, Tlower, 1, 10);
+			HAL_I2C_Master_Receive(&hi2c1, 0xD1, Tlower+1, 1, 10);
+			temp1[0] = hexToAscii(Tupper[1] >> 4);
+			temp1[1] = hexToAscii(Tupper[1] & 0x0F);
+			temp2 = htod(temp1);
+			tempout[0]=temp2[0];
+			tempout[1]=temp2[1];
+			tempout[2]=temp2[2];
+			switch(Tlower[1]) 
+			{
+				case 0x00:
+					tempout[4] = '0';
+					tempout[5] = '0';
+					break;
+				case 0x40:
+					tempout[4] = '2';
+					tempout[5] = '5';
+					break;
+				case 0x80:
+					tempout[4] = '5';
+					tempout[5] = '0';
+					break;
+				case 0xc0:
+					tempout[4] = '7';
+					tempout[5] = '5';
+					break;
+			}
+			
+		}
+		//get year
+		HAL_I2C_Master_Transmit(&hi2c1, 0xD0, yearbuffer, 1, 10);
+		HAL_I2C_Master_Receive(&hi2c1, 0xD1, yearbuffer+1, 1, 10);
+		out[18] = hexToAscii(yearbuffer[1] >> 4 );
+		out[19] = hexToAscii(yearbuffer[1] & 0x0F );
+		//get month
+		HAL_I2C_Master_Transmit(&hi2c1, 0xD0, monthbuffer, 1, 10);
+		HAL_I2C_Master_Receive(&hi2c1, 0xD1, monthbuffer+1, 1, 10);
+		out[15] = hexToAscii((monthbuffer[1] >> 4)& 0x01 );
+		out[16] = hexToAscii(monthbuffer[1] & 0x0F );
+		//get date
+		HAL_I2C_Master_Transmit(&hi2c1, 0xD0, datebuffer, 1, 10);
+		HAL_I2C_Master_Receive(&hi2c1, 0xD1, datebuffer+1, 1, 10);
+		out[12] = hexToAscii(datebuffer[1] >> 4);
+		out[13] = hexToAscii(datebuffer[1] & 0x0F );
+		//get day of week
+		HAL_I2C_Master_Transmit(&hi2c1, 0xD0, dowbuffer, 1, 10);
+		HAL_I2C_Master_Receive(&hi2c1, 0xD1, dowbuffer+1, 1, 10);
+		out[10] = hexToAscii(dowbuffer[1] & 0x0F );
 		//send seconds register address 00h to read from
 		HAL_I2C_Master_Transmit(&hi2c1, 0xD0, secbuffer, 1, 10);
 		//read data of register 00h to secbuffer[1]
@@ -166,19 +290,37 @@ int main(void)
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_SET);
 			rxdata=' ';
 		}
+		if(rxdata=='M')
+		{
+			timebool=1;
+		}
 		else if(rxdata =='F')
 		{
 			HAL_UART_Transmit(&huart2,fnewline, sizeof(fnewline), 10);
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_RESET);
 			rxdata=' ';
 		}
-		else if (rxdata == 'E')
+		else if (rxdata == 'P')
+		{
+			HAL_UART_Transmit(&huart2,outf, sizeof(outf), 10);
+			if((Tupper[1] & 0x80) != 0x00)
+				HAL_UART_Transmit(&huart2,(uint8_t*) &nsign, 1, 100);
+			if(tempout[0]=='0')
+				HAL_UART_Transmit(&huart2,tempout+1, sizeof(tempout)-1, 10);
+			else
+				HAL_UART_Transmit(&huart2,tempout, sizeof(tempout), 10);
+			rxdata=' ';
+			timebool=0;
+		}
+		else if (rxdata == 'E' && timebool)
 		{
 			HAL_UART_Transmit(&huart2,outf, sizeof(outf), 10);
 			HAL_UART_Transmit(&huart2,out, sizeof(out), 10);
 			rxdata=' ';
+			timebool=0;
 		}
-  }
+	}
+			
   /* USER CODE END 3 */
 }
 
